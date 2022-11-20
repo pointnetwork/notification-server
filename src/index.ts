@@ -53,7 +53,15 @@ webServer.post('/', webServerOptions, async (req, res) => {
         process.exit(1);
     }
     try {
-        await webServer.listen({port: 8787});
+        await webServer.listen({
+            port: process.env.SERVER_PORT ? parseInt(process.env.SERVER_PORT) : 8787,
+            host: process.env.SERVER_HOST || 'localhost'
+        });
+
+        // curl localhost:8787 \
+        //   -X POST \
+        //   -H "Content-Type: application/json" \
+        //   -d '{"id":1,"jsonrpc":"2.0","method":"eth_getLogs","params":{"foo":"bar"}}'
     } catch (e) {
         console.error('Failed to start server', e);
         await database.close();

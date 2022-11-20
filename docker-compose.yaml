@@ -1,12 +1,36 @@
 version: '3.9'
 
 services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: notification-server
+    hostname: notification-server
+    container_name: notification-server
+    environment:
+      SERVER_HOST: '0.0.0.0'
+      SERVER_PORT: 8787
+      DATABASE_HOST: notification-database
+      DATABASE_PORT: 3306
+    volumes:
+      - ./src:/app/src
+    ports:
+      - 8787:8787
+    depends_on:
+      database:
+        condition: service_healthy
+    command:
+      - run
+      - watch
+
   database:
     image: mysql
     restart: always
+    hostname: notification-database
+    container_name: notification-database
     ports:
       - 3306:3306
-    volumes:
     volumes:
       - database:/var/lib/mysql
       - ./database-init.sql:/docker-entrypoint-initdb.d/database-init.sql
@@ -15,6 +39,12 @@ services:
       MYSQL_USER: test
       MYSQL_PASSWORD: test1234
       MYSQL_ROOT_PASSWORD: root1234
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -u $$MYSQL_USER --password=$$MYSQL_PASSWORD
+      start_period: 5s
+      interval: 10s
+      timeout: 20s
+      retries: 5
 
 volumes:
   database:

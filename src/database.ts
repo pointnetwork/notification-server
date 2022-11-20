@@ -5,8 +5,8 @@ const database = new Sequelize({
     username: 'test',
     password: 'test1234',
     dialect: 'mysql',
-    host: 'localhost',
-    port: 3306,
+    host: process.env.DATABASE_HOST || 'localhost',
+    port: process.env.DATABASE_PORT ? parseInt(process.env.DATABASE_PORT) : 3306,
     dialectOptions: {
         supportBigNumbers: true,
         bigNumberStrings: true
